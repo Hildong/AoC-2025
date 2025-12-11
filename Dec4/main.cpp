@@ -1,38 +1,41 @@
-#include <iostream>
-#include <fstream>
-#include <vector>
 #include <cmath>
+#include <fstream>
+#include <iostream>
+#include <vector>
 
 using Layout = std::vector<std::vector<char>>;
 
 namespace {
-    const char paperRoll = '@';
+const char paperRoll = '@';
 }
 
 struct Pos {
-    Pos (int y, int x) : y_(y), x_(x) {};
+    Pos(int y, int x) : y_(y), x_(x) {};
     int x_;
     int y_;
 };
 
-bool adjacentPositionsValid(const Layout& layout, Pos &position, const int threshold, const int maxNumOfAdjacentPaperRolls) {
+bool adjacentPositionsValid(const Layout &layout,
+                            Pos &position,
+                            const int threshold,
+                            const int maxNumOfAdjacentPaperRolls) {
     int adjacentBlockades = 0;
     int startPos = std::floor(sqrt(threshold + 1) / 2);
 
-    for(int y = startPos; y >= std::negate<int>()(startPos); y--)  {
+    for (int y = startPos; y >= std::negate<int>()(startPos); y--) {
         int currentY = y + position.y_;
-        if(currentY < 0 || currentY >= layout.size() - 1) 
+        if (currentY < 0 || currentY >= layout.size() - 1)
             continue;
 
-        for(int x = startPos; x >= std::negate<int>()(startPos); x--) {
+        for (int x = startPos; x >= std::negate<int>()(startPos); x--) {
             int currentX = x + position.x_;
             bool xInbounds = currentX >= 0 && currentX <= layout[currentY].size() - 1;
             bool isOwnPosition = currentX == position.x_ && currentY == position.y_;
 
-            if(!xInbounds || isOwnPosition) 
-               continue;
-            
-            if(layout[currentY][currentX] == paperRoll)  
+            if (!xInbounds || isOwnPosition)
+                continue;
+
+            if (layout[currentY][currentX] == paperRoll)
                 adjacentBlockades++;
         }
     }
@@ -40,11 +43,9 @@ bool adjacentPositionsValid(const Layout& layout, Pos &position, const int thres
     return adjacentBlockades < maxNumOfAdjacentPaperRolls;
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 
-    if (argc != 2)
-    {
+    if (argc != 2) {
         std::cerr << "Usage: " << argv[0] << " <inputfile.extension> \n";
         return 1;
     }
@@ -57,13 +58,11 @@ int main(int argc, char *argv[])
     int totalToiletRollsMoved = 0;
     int totalToiletRollsMovedMultipleTurns = 0;
 
-    if (file.is_open())
-    {
+    if (file.is_open()) {
         char ch;
         int y = 0;
         int x = 0;
-        while (file.get(ch))
-        {
+        while (file.get(ch)) {
             if (ch == '\n') {
                 y++;
                 x = 0;
@@ -72,28 +71,28 @@ int main(int argc, char *argv[])
             }
 
             layout[y].push_back(ch);
-            if(ch == paperRoll) {
-                positionsToCheck.push_back({y, x}); 
+            if (ch == paperRoll) {
+                positionsToCheck.push_back({y, x});
             }
-            x++; 
+            x++;
         }
 
         file.close();
     }
 
-    for(auto &pos : positionsToCheck) {
+    for (auto &pos : positionsToCheck) {
         Layout layoutCopy = layout;
-        if(adjacentPositionsValid(layoutCopy, pos, 8, 4))
+        if (adjacentPositionsValid(layoutCopy, pos, 8, 4))
             totalToiletRollsMoved++;
     }
 
     int toiletRollsMovedThisTurn = 0;
-    while(true) {
+    while (true) {
         Layout updatedLayoutAfterRemoving = layout;
-        for(auto it = positionsToCheck.begin(); it != positionsToCheck.end();) {
-            Pos& pos = *it;
+        for (auto it = positionsToCheck.begin(); it != positionsToCheck.end();) {
+            Pos &pos = *it;
 
-            if(adjacentPositionsValid(layout, pos, 8, 4)) {
+            if (adjacentPositionsValid(layout, pos, 8, 4)) {
                 totalToiletRollsMovedMultipleTurns++;
                 updatedLayoutAfterRemoving[pos.y_][pos.x_] = '.';
                 it = positionsToCheck.erase(it);
@@ -101,15 +100,15 @@ int main(int argc, char *argv[])
                 it++;
             }
         }
-        if(layout == updatedLayoutAfterRemoving || !positionsToCheck.size()) 
+        if (layout == updatedLayoutAfterRemoving || !positionsToCheck.size())
             break;
 
         layout = updatedLayoutAfterRemoving;
         toiletRollsMovedThisTurn += totalToiletRollsMovedMultipleTurns;
     }
 
-
     std::cout << "Rolls accessed by the forklift: " << totalToiletRollsMoved << std::endl;
-    std::cout << "Rolls accessed by the forklift after multiple turns: " << totalToiletRollsMovedMultipleTurns << std::endl;
+    std::cout << "Rolls accessed by the forklift after multiple turns: " << totalToiletRollsMovedMultipleTurns
+              << std::endl;
     return 0;
 }

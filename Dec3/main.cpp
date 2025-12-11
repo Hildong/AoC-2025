@@ -1,7 +1,7 @@
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
-std::string createLargestBatteryBank(const std::string& fileLine, int numOfBatteries) {
+std::string createLargestBatteryBank(const std::string &fileLine, int numOfBatteries) {
     std::string batteryBank = fileLine;
     while (batteryBank.size() > numOfBatteries) {
         bool erased = false;
@@ -10,21 +10,19 @@ std::string createLargestBatteryBank(const std::string& fileLine, int numOfBatte
             if (*it < *(it + 1)) {
                 batteryBank.erase(it);
                 erased = true;
-                break;           
+                break;
             }
         }
 
-        if (!erased) 
+        if (!erased)
             batteryBank.pop_back();
     }
     return batteryBank;
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 
-    if (argc != 2)
-    {
+    if (argc != 2) {
         std::cerr << "Usage: " << argv[0] << " <inputfile.extension> \n";
         return 1;
     }
@@ -35,11 +33,9 @@ int main(int argc, char *argv[])
     int totalJoltageOutputSmallBank = 0;
     long long totalJoltageOutputLargeBank = 0;
 
-    if (file.is_open())
-    {
+    if (file.is_open()) {
         std::string fileLine;
-        while (getline(file, fileLine))
-        {
+        while (getline(file, fileLine)) {
             std::string smallBatteryBank = createLargestBatteryBank(fileLine, 2);
             std::string largeBatteryBank = createLargestBatteryBank(fileLine, 12);
 

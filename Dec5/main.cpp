@@ -1,9 +1,8 @@
-#include <iostream>
-#include <fstream>
-#include <set>
-#include <string>
+#include "../Utils/Split.h"
 #include <algorithm>
-#include "../Utils/Split.h" 
+#include <fstream>
+#include <iostream>
+#include <string>
 
 struct ProductRange {
     ProductRange(std::string &min, std::string &max) : min_(min), max_(max) {};
@@ -12,15 +11,15 @@ struct ProductRange {
     std::string max_;
 };
 
-void mergeRanges(std::vector<ProductRange>& productRanges) {
+void mergeRanges(std::vector<ProductRange> &productRanges) {
     if (productRanges.empty())
         return;
 
-    std::sort(productRanges.begin(), productRanges.end(), [](const ProductRange& a, const ProductRange& b) {
+    std::sort(productRanges.begin(), productRanges.end(), [](const ProductRange &a, const ProductRange &b) {
         return std::stoll(a.min_) < std::stoll(b.min_);
     });
 
-    for (auto it = productRanges.begin(); it != productRanges.end(); ) {
+    for (auto it = productRanges.begin(); it != productRanges.end();) {
         auto next = std::next(it);
 
         if (next != productRanges.end()) {
@@ -30,21 +29,19 @@ void mergeRanges(std::vector<ProductRange>& productRanges) {
 
             if (itMax >= nextMin) {
                 it->max_ = std::to_string(std::max(itMax, nextMax));
-                productRanges.erase(next);  
+                productRanges.erase(next);
             } else {
-                ++it;  
+                ++it;
             }
         } else {
-            ++it;  
+            ++it;
         }
     }
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 
-    if (argc != 2)
-    {
+    if (argc != 2) {
         std::cerr << "Usage: " << argv[0] << " <inputfile.extension> \n";
         return 1;
     }
@@ -56,14 +53,12 @@ int main(int argc, char *argv[])
     int numOfFreshProducts = 0;
     long long rangesCombined = 0;
 
-    if (file.is_open())
-    {
+    if (file.is_open()) {
         std::string fileLine;
         bool readRangeMode = true;
-        while (getline(file, fileLine))
-        {
-            if(readRangeMode) {
-                if(fileLine.empty()) {
+        while (getline(file, fileLine)) {
+            if (readRangeMode) {
+                if (fileLine.empty()) {
                     mergeRanges(validProductRanges);
                     readRangeMode = false;
                     continue;
@@ -71,21 +66,21 @@ int main(int argc, char *argv[])
 
                 std::vector<std::string> ranges{};
                 getStringsSplitByDelimiter(fileLine, ranges, '-');
-                
+
                 validProductRanges.push_back(ProductRange(ranges.at(0), ranges.at(1)));
                 continue;
             }
 
-            for(const auto &range : validProductRanges) {
-                if(std::stoll(fileLine) >= std::stoll(range.min_) && std::stoll(fileLine) <= std::stoll(range.max_)) {
+            for (const auto &range : validProductRanges) {
+                if (std::stoll(fileLine) >= std::stoll(range.min_) && std::stoll(fileLine) <= std::stoll(range.max_)) {
                     numOfFreshProducts++;
                     break;
                 }
             }
-        } 
+        }
 
-        for(const auto &range : validProductRanges) {
-             rangesCombined += std::stoll(range.max_) - std::stoll(range.min_) + 1; 
+        for (const auto &range : validProductRanges) {
+            rangesCombined += std::stoll(range.max_) - std::stoll(range.min_) + 1;
         }
 
         file.close();
